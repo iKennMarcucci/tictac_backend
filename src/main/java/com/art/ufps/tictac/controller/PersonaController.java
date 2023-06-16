@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/personas")
+@CrossOrigin()
 public class PersonaController {
 
     private final PersonaService personaService;
@@ -87,13 +88,13 @@ public class PersonaController {
             //List<Persona> personas = cargarExcels.cargarDocentes(inputStream);
             DatosDocentes datosDocentes = cargarExcels.cargarDocentes(inputStream);
             if (datosDocentes.getListaPersonas().isEmpty()) {
-                mensajeDto = new MensajeDto("El archivo esta vacio",true);
+                mensajeDto = new MensajeDto("El archivo esta vacio",false);
                 return ResponseEntity.badRequest().body(mensajeDto);
             } else {
                 personaRepository.saveAll(datosDocentes.getListaPersonas());
                 docenteRepository.saveAll(datosDocentes.getListaDocentes());
                 liderLineaRepository.saveAll(datosDocentes.getListaLideres());
-                mensajeDto = new MensajeDto("Archivo cargado correctamente",false);
+                mensajeDto = new MensajeDto("Archivo cargado correctamente",true);
                 return ResponseEntity.ok(mensajeDto);
             }
         }
@@ -115,13 +116,13 @@ public class PersonaController {
             //List<Persona> personas = cargarExcels.cargarEstudiantes(inputStream);
             DatosEstudiantes datosEstudiantes = cargarExcels.cargarEstudiantes(inputStream);
             if (datosEstudiantes.getListaPersonas().isEmpty()) {
-                mensajeDto = new MensajeDto("El archivo esta vacio",true);
+                mensajeDto = new MensajeDto("El archivo esta vacio",false);
                 return ResponseEntity.badRequest().body(mensajeDto);
             } else {
                 personaRepository.saveAll(datosEstudiantes.getListaPersonas());
                 estudianteRepository.saveAll(datosEstudiantes.getListaEstudiantes());
                 matriculaRepository.saveAll(datosEstudiantes.getListaMatriculas());
-                mensajeDto = new MensajeDto("Archivo cargado correctamente",false);
+                mensajeDto = new MensajeDto("Archivo cargado correctamente",true);
                 return ResponseEntity.ok(mensajeDto);
             }
         }

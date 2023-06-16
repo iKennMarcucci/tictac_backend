@@ -117,11 +117,7 @@ public class CargarExcels {
                     rol.setNombre("Docente");
                     rol.setIdRol(3);
                     persona.setRol(rol);
-                }else if(excelPersonDto.getRol() == 4){
-                    rol.setNombre("Estudiante");
-                    rol.setIdRol(4);
-                    persona.setRol(rol);
-                }
+                }else break;
                 persona.setIdInstitucion(excelPersonDto.getIdInstitucion());
                 personas.add(persona);
 
@@ -230,19 +226,11 @@ public class CargarExcels {
                 //persona.setRol(excelPersonDto.getRol());
                 //rol.setIdRol(excelPersonDto.getRol());
                 Rol rol = new Rol();
-                if (excelEstudianteDto.getRol() == 2){
-                    rol.setNombre("Lider PPT");
-                    rol.setIdRol(2);
-                    persona.setRol(rol);
-                }else if(excelEstudianteDto.getRol() == 3){
-                    rol.setNombre("Docente");
-                    rol.setIdRol(3);
-                    persona.setRol(rol);
-                }else if(excelEstudianteDto.getRol() == 4){
+                if(excelEstudianteDto.getRol() == 4){
                     rol.setNombre("Estudiante");
                     rol.setIdRol(4);
                     persona.setRol(rol);
-                }
+                } else break;
                 persona.setIdInstitucion(excelEstudianteDto.getIdInstitucion());
                 personas.add(persona);
 
