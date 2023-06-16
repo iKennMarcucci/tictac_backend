@@ -13,5 +13,6 @@ public interface HerramientaInterface {
     Optional<Herramienta> getByNombre(String nombre);
     boolean existById(int id);
     boolean existByNombre(String nombre);
+    Optional<Herramienta> getByIdTema(int idTema);
 
 }

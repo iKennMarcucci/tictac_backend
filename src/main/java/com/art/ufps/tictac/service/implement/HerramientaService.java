@@ -46,6 +46,9 @@ public class HerramientaService implements HerramientaInterface {
     public boolean existByNombre(String nombreHerramienta){
         return herramientaRepository.existsByNombreHerramienta(nombreHerramienta);
     }
+    public Optional<Herramienta> getByIdTema(int idTema){
+        return herramientaRepository.findByIdTema(idTema);
+    }
 
 }
 

@@ -4,6 +4,7 @@ import com.art.ufps.tictac.entity.Herramienta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -11,5 +12,6 @@ public interface HerramientaRepository extends JpaRepository<Herramienta, Intege
 
     Optional<Herramienta> findByNombreHerramienta(String nombre);
     boolean existsByNombreHerramienta(String nombreHerramienta);
+    Optional<Herramienta> findByIdTema(int idTema);
 
 }

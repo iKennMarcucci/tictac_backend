@@ -5,10 +5,10 @@ import com.art.ufps.tictac.dto.RequestBodyWraper;
 import com.art.ufps.tictac.entity.*;
 import com.art.ufps.tictac.excepciones.MensajeDto;
 import com.art.ufps.tictac.repository.*;
+import com.art.ufps.tictac.service.TemaInterface;
 import com.art.ufps.tictac.service.implement.HerramientaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.sql.Date;
 import java.sql.Time;
-import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/herramienta")
@@ -30,6 +31,8 @@ public class HerramientaController {
     private final HerramientaRepository herramientaRepository;
 
     private final TemaRepository temaRepository;
+
+    private final TemaInterface temaInterface;
 
     private final MomentoRepository momentoRepository;
 
@@ -43,10 +46,11 @@ public class HerramientaController {
 
 
     @Autowired
-    public HerramientaController(HerramientaService herramientaService, HerramientaRepository herramientaRepository, TemaRepository temaRepository, MomentoRepository momentoRepository, ProcesoRepository procesoRepository, RecursoRepository recursoRepository, RecursoProcesoRepository recursoProcesoRepository, LineaTransversalRepository lineaTransversalRepository) {
+    public HerramientaController(HerramientaService herramientaService, HerramientaRepository herramientaRepository, TemaRepository temaRepository, TemaInterface temaInterface, MomentoRepository momentoRepository, ProcesoRepository procesoRepository, RecursoRepository recursoRepository, RecursoProcesoRepository recursoProcesoRepository, LineaTransversalRepository lineaTransversalRepository) {
         this.herramientaService = herramientaService;
         this.herramientaRepository = herramientaRepository;
         this.temaRepository = temaRepository;
+        this.temaInterface = temaInterface;
         this.momentoRepository = momentoRepository;
         this.procesoRepository = procesoRepository;
         this.recursoRepository = recursoRepository;
@@ -54,10 +58,29 @@ public class HerramientaController {
         this.lineaTransversalRepository = lineaTransversalRepository;
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<Herramienta>> list() {
-        List<Herramienta> list = herramientaService.list();
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    @GetMapping("/list/{ruta}")
+    public ResponseEntity<Optional<List<Herramienta>>> list(@PathVariable("ruta")String ruta, @RequestParam("eje") String eje) {
+
+        Optional<List<Tema>> temas = temaInterface.getByEje(Integer.parseInt(eje));
+        Optional<List<Herramienta>> herramientas = Optional.empty();
+
+        if (temas.isPresent()) {
+            List<Tema> temaList = temas.get();
+            List<Herramienta> herramientaList = new ArrayList<>();
+
+            for (Tema tema : temaList) {
+                Optional<Herramienta> herramienta = herramientaService.getByIdTema(tema.getIdTema());
+                if (herramienta.isPresent() && ruta.equals("home") && herramienta.get().getVisibilidad() == 1) {
+                    herramientaList.add(herramienta.get());
+                }
+                else if (herramienta.isPresent() && ruta.equals("institucion")){
+                    herramientaList.add(herramienta.get());
+                }
+            }
+            herramientas = Optional.of(herramientaList);
+        }
+
+        return new ResponseEntity<>(herramientas, HttpStatus.OK);
     }
 
     @GetMapping("/getbyid/{id}")
