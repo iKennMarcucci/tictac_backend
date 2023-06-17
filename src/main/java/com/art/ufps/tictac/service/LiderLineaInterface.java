@@ -13,4 +13,7 @@ public interface LiderLineaInterface {
     void delete(ClaveCompuesta id);
     Optional<LiderLinea> getById(ClaveCompuesta id);
 
+    LiderLinea getByIdDocente(String documento);
+
+
 }

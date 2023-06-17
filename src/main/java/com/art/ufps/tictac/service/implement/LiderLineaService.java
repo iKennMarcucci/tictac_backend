@@ -36,4 +36,7 @@ public class LiderLineaService implements LiderLineaInterface {
         return liderLineaRepository.findById(id);
     }
 
+    public LiderLinea getByIdDocente(String documento){
+        return liderLineaRepository.findByIdDocente(documento);
+    }
 }

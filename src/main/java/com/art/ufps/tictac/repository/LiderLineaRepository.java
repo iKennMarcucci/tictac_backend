@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LiderLineaRepository extends JpaRepository<LiderLinea, ClaveCompuesta> {
 
+    LiderLinea findByIdDocente(String documento);
+
 }
 

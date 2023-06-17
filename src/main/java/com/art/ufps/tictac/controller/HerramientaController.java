@@ -1,12 +1,15 @@
 package com.art.ufps.tictac.controller;
 
+import com.art.ufps.tictac.dto.MensajeValidacion;
 import com.art.ufps.tictac.dto.ProcesoJsonDto;
 import com.art.ufps.tictac.dto.RequestBodyWraper;
 import com.art.ufps.tictac.entity.*;
 import com.art.ufps.tictac.excepciones.MensajeDto;
 import com.art.ufps.tictac.repository.*;
+import com.art.ufps.tictac.service.LiderLineaInterface;
 import com.art.ufps.tictac.service.TemaInterface;
 import com.art.ufps.tictac.service.implement.HerramientaService;
+import com.art.ufps.tictac.service.implement.LiderLineaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,8 @@ public class HerramientaController {
 
     private final TemaInterface temaInterface;
 
+    private final LiderLineaInterface liderLineaInterface;
+
     private final MomentoRepository momentoRepository;
 
     private final ProcesoRepository procesoRepository;
@@ -46,11 +51,12 @@ public class HerramientaController {
 
 
     @Autowired
-    public HerramientaController(HerramientaService herramientaService, HerramientaRepository herramientaRepository, TemaRepository temaRepository, TemaInterface temaInterface, MomentoRepository momentoRepository, ProcesoRepository procesoRepository, RecursoRepository recursoRepository, RecursoProcesoRepository recursoProcesoRepository, LineaTransversalRepository lineaTransversalRepository) {
+    public HerramientaController(HerramientaService herramientaService, HerramientaRepository herramientaRepository, TemaRepository temaRepository, TemaInterface temaInterface, LiderLineaInterface liderLineaInterface, MomentoRepository momentoRepository, ProcesoRepository procesoRepository, RecursoRepository recursoRepository, RecursoProcesoRepository recursoProcesoRepository, LineaTransversalRepository lineaTransversalRepository) {
         this.herramientaService = herramientaService;
         this.herramientaRepository = herramientaRepository;
         this.temaRepository = temaRepository;
         this.temaInterface = temaInterface;
+        this.liderLineaInterface = liderLineaInterface;
         this.momentoRepository = momentoRepository;
         this.procesoRepository = procesoRepository;
         this.recursoRepository = recursoRepository;
@@ -70,10 +76,10 @@ public class HerramientaController {
 
             for (Tema tema : temaList) {
                 Optional<Herramienta> herramienta = herramientaService.getByIdTema(tema.getIdTema());
-                if (herramienta.isPresent() && ruta.equals("home") && herramienta.get().getVisibilidad() == 1) {
+                if (herramienta.isPresent() && ruta.equals("home") && herramienta.get().getVisibilidad() == 1 && herramienta.get().getEstado().equals("1")) {
                     herramientaList.add(herramienta.get());
                 }
-                else if (herramienta.isPresent() && ruta.equals("institucion")){
+                else if (herramienta.isPresent() && ruta.equals("institucion") && herramienta.get().getEstado().equals("1")){
                     herramientaList.add(herramienta.get());
                 }
             }
@@ -81,6 +87,46 @@ public class HerramientaController {
         }
 
         return new ResponseEntity<>(herramientas, HttpStatus.OK);
+    }
+
+    @GetMapping("/listPendientes/{ruta}")
+    public ResponseEntity<Optional<List<Herramienta>>> listPendientes(@PathVariable("ruta")String ruta, @RequestParam("documento") String documento) {
+
+        LiderLinea liderLinea = liderLineaInterface.getByIdDocente(documento);
+        int idLinea = liderLinea.getIdLinea();
+
+        Optional<List<Tema>> temas = temaInterface.getByEje(idLinea);
+        Optional<List<Herramienta>> herramientas = Optional.empty();
+
+        if (temas.isPresent()) {
+            List<Tema> temaList = temas.get();
+            List<Herramienta> herramientaList = new ArrayList<>();
+
+            for (Tema tema : temaList) {
+                Optional<Herramienta> herramienta = herramientaService.getByIdTema(tema.getIdTema());
+                if (herramienta.isPresent() && ruta.equals("institucion") && herramienta.get().getEstado().equals("0")){
+                    herramientaList.add(herramienta.get());
+                }
+            }
+            herramientas = Optional.of(herramientaList);
+        }
+        return new ResponseEntity<>(herramientas, HttpStatus.OK);
+    }
+
+    @PutMapping("/validar/{id}")
+    public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody MensajeValidacion mensajeValidacion) {
+        Optional<Herramienta> herramientaOptional = herramientaService.getById(id);
+
+        if (herramientaOptional.isPresent()) {
+            Herramienta herramienta = herramientaOptional.get();
+            // Actualizar el mensaje de la herramienta con el valor recibido en el cuerpo de la solicitud
+            herramienta.setComentarios(mensajeValidacion.getMensaje());
+            herramienta.setEstado(mensajeValidacion.getEstado());
+            herramientaService.save(herramienta);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/getbyid/{id}")
