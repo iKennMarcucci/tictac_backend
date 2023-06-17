@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:mysql://47.89.245.144/bd_tictac?useSSL=false
+    dbname: bd_tictac
+    username: tiktak
+    password: Pruebastik2023*
